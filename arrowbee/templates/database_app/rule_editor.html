@@ -1,0 +1,363 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html data-bs-theme="auto" lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
+  <title>
+   ArrowBee
+  </title>
+  <script>
+   (function() {
+
+            // JavaScript snippet handling Dark/Light mode switching
+
+            const getStoredTheme = () => localStorage.getItem('theme');
+            const setStoredTheme = theme => localStorage.setItem('theme', theme);
+            const forcedTheme = document.documentElement.getAttribute('data-bss-forced-theme');
+
+            const getPreferredTheme = () => {
+
+                if (forcedTheme) return forcedTheme;
+
+                const storedTheme = getStoredTheme();
+                if (storedTheme) {
+                    return storedTheme;
+                }
+
+                const pageTheme = document.documentElement.getAttribute('data-bs-theme');
+
+                if (pageTheme) {
+                    return pageTheme;
+                }
+
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            const setTheme = theme => {
+                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', theme);
+                }
+            }
+
+            setTheme(getPreferredTheme());
+
+            const showActiveTheme = (theme, focus = false) => {
+                const themeSwitchers = [].slice.call(document.querySelectorAll('.theme-switcher'));
+
+                if (!themeSwitchers.length) return;
+
+                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+                    element.classList.remove('active');
+                    element.setAttribute('aria-pressed', 'false');
+                });
+
+                for (const themeSwitcher of themeSwitchers) {
+
+                    const btnToActivate = themeSwitcher.querySelector('[data-bs-theme-value="' + theme + '"]');
+
+                    if (btnToActivate) {
+                        btnToActivate.classList.add('active');
+                        btnToActivate.setAttribute('aria-pressed', 'true');
+                    }
+                }
+            }
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                const storedTheme = getStoredTheme();
+                if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                    setTheme(getPreferredTheme());
+                }
+            });
+
+            window.addEventListener('DOMContentLoaded', () => {
+                showActiveTheme(getPreferredTheme());
+
+                document.querySelectorAll('[data-bs-theme-value]')
+                    .forEach(toggle => {
+                        toggle.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const theme = toggle.getAttribute('data-bs-theme-value');
+                            setStoredTheme(theme);
+                            setTheme(theme);
+                            showActiveTheme(theme);
+                        })
+                    })
+            });
+        })();
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Amatic+SC&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Charmonman&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Indie+Flower&display=swap" rel="stylesheet"/>
+  <link href='{% static "css/swiper-icons.css" %}' rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"/>
+  <link href='{% static "css/Articles-Cards-images.css" %}' rel="stylesheet"/>
+  <link href='{% static "css/Editable-Text.css" %}' rel="stylesheet"/>
+  <link href='{% static "css/Navbar-Centered-Brand-Dark-icons.css" %}' rel="stylesheet"/>
+  <link href='{% static "css/Simple-Slider-swiper-bundle.min.css" %}' rel="stylesheet"/>
+  <link href='{% static "css/Simple-Slider.css" %}' rel="stylesheet"/>
+  <link href='{% static "css/styles.css" %}' rel="stylesheet"/>
+  <link href='{% static "css/vertical-carousel.css" %}' rel="stylesheet"/>
+  <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/katex@0.16.6/dist/katex.min.css" integrity="sha384-mXD7x5S50Ko38scHSnD4egvoExgMPbrseZorkbE49evAfv9nNcbrXJ8LLNsDgh9d" rel="stylesheet"/>
+  <script crossorigin="anonymous" defer="" integrity="sha384-j/ZricySXBnNMJy9meJCtyXTKMhIJ42heyr7oAdxTDBy/CYA9hzpMo+YTNV5C+1X" src="https://cdn.jsdelivr.net/npm/katex@0.16.6/dist/katex.min.js">
+  </script>
+  <script crossorigin="anonymous" defer="" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" src="https://cdn.jsdelivr.net/npm/katex@0.16.6/dist/contrib/auto-render.min.js">
+  </script>
+ </head>
+ <body style="padding-left: 0px;width: 100%;background: var(--bs-orange);">
+  <script src="{% static 'js/quiver_interface.js' %}">
+  </script>
+  <script type="text/javascript">
+   csrfToken = "{{ csrf_token }}";
+    renameRuleURL = "{% url 'rename_rule' rule_id %}";
+    ruleName = "{{ rule_name }}";
+  </script>
+  <nav class="navbar navbar-expand-md bg-dark py-1 navbar-dark">
+   <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+     <span class="bounce animated" style="color: var(--bs-cyan);font-family: 'Indie Flower', serif;font-size: 30px;">
+      Diagram Chase Database
+     </span>
+    </a>
+    <button class="navbar-toggler" data-bs-target="#navcol-6" data-bs-toggle="collapse">
+     <span class="visually-hidden">
+      Toggle navigation
+     </span>
+     <span class="navbar-toggler-icon">
+     </span>
+    </button>
+    <div class="collapse navbar-collapse flex-grow-0 order-md-first" id="navcol-6">
+     <ul class="navbar-nav me-auto">
+      <li class="nav-item">
+       <a class="nav-link active" href="https://github.com/enjoysmath/DiagramChaseDatabase">
+        Source Code
+       </a>
+      </li>
+      <li class="nav-item">
+       <a class="nav-link active" href="https://github.com/enjoysmath/DiagramChaseDatabase/issues">
+        Report Bugs
+       </a>
+      </li>
+     </ul>
+     <div class="d-md-none my-2">
+      {% if user.is_authenticated %}
+      <a class="btn btn-light me-2" href='{% url "logout" %}' role="button">
+       Log Out
+      </a>
+      {% endif %}
+     </div>
+    </div>
+    <div class="d-none d-md-block">
+     {% if user.is_authenticated %}
+     <a class="btn btn-light me-2" href='{% url "logout" %}' role="button">
+      Log Out
+     </a>
+     {% endif %}
+    </div>
+   </div>
+  </nav>
+  {% load bootstrap5 %}
+  <script type="text/javascript">
+   document.addEventListener('DOMContentLoaded', ()=> {
+        djangoMessagesDiv = "#django-messages";
+        djangoMessagesURL = "{% url 'messages' %}";
+    });
+  </script>
+  <div id="django-messages" style="z-index:1">
+   {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+  </div>
+  <div class="container d-flex justify-content-center align-items-center justify-content-md-center justify-content-xxl-center editable-text">
+   <div class="modal fade d-flex float-end justify-content-center align-items-center my-auto editable-text-modal" id="rule-name-modal" role="dialog" style="margin-top: 10%;border-color: var(--bs-indigo);" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+     <div class="modal-content">
+      <div class="modal-header flex-row flex-grow-1 flex-shrink-0 flex-fill justify-content-center align-items-center align-content-center align-self-stretch flex-wrap justify-content-xl-center align-items-xl-center" style="height: 46.4219px;border-style: none;background: #fcff68;text-align: center;padding-left: 0%;padding-right: 0%;margin: 0px;">
+       <h4 class="modal-title float-none" style="text-align: center;margin: 0;padding-right: 0px;padding-left: 0px;margin-left: 0px;margin-right: 10px;">
+        Rename Rule
+       </h4>
+       <button aria-label="Close" class="btn-close text-end" data-bs-dismiss="modal" id="rule-name-close-button" style="margin: 8px;position: absolute;right: 0.4%;" type="button">
+       </button>
+      </div>
+      <div class="modal-body d-md-flex justify-content-md-center" style="padding: 0px;height: auto;width: auto;border-style: none;background: #fcff68;">
+       <input class="form-control-lg d-md-flex justify-content-md-center align-items-md-center" id="rule-name-input" placeholder="Enter a rule name" style="width: 90%;height: 100%;padding: 0px;margin: 0;margin-right: 5%;margin-bottom: 0;text-align: center;margin-left: 5%;background: var(--bs-modal-bg);margin-top: 16px;color: var(--bs-blue);border: 2px none var(--bs-blue);box-shadow: 0px 5px 20px 3px var(--bs-modal-border-color);" type="text" value="{{ rule_name }}"/>
+      </div>
+      <div class="modal-footer" style="height: 69px;padding: 0;padding-right: 8px;border-style: none;background: #fcff68;">
+       <button class="btn btn-primary" onclick="rename_rule();" type="button">
+        Save
+       </button>
+      </div>
+     </div>
+    </div>
+   </div>
+   <h3 class="text-center d-flex d-lg-flex d-xl-flex align-items-center align-items-lg-center align-items-xl-center" style="z-index: 1;margin: 8px;">
+    Name:
+   </h3>
+   <h3 class="d-flex d-lg-flex align-items-center align-items-lg-center" id="rule-name" style="display: block;text-align: center;z-index: 1;color: #6100ff;margin: 0px;padding-top: 0px;margin-bottom: -2px;">
+    {{ rule_name }}
+   </h3>
+   <button class="btn btn-primary text-center editable-text-button" data-bs-target="#rule-name-modal" data-bs-toggle="modal" style='height: 32px;margin: 0px;width: 32px;background: url({% static "img/edit-icon.png" %}) center / contain no-repeat, #00000000;z-index: 1;margin-top: 8px;margin-left: 8px;' type="button">
+   </button>
+  </div>
+  <div class="modal fade d-flex d-sm-flex d-lg-flex d-xxl-flex flex-grow-1 justify-content-center align-items-center justify-content-sm-center align-items-sm-center justify-content-lg-center align-items-lg-center justify-content-xxl-center align-items-xxl-center" id="insert-assumption-modal" role="dialog" style="margin: 0px;border-color: var(--bs-indigo);width: 100%;height: 100%;position: absolute;padding-top: 0px;margin-top: 0px;" tabindex="-1">
+   <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+     <div class="modal-header flex-row flex-grow-1 flex-shrink-0 flex-fill justify-content-center align-items-center align-content-center align-self-stretch flex-wrap justify-content-xl-center align-items-xl-center" style="height: 46.4219px;border-style: none;background: #fcff68;text-align: center;padding-left: 0%;padding-right: 0%;margin: 0px;">
+      <h4 class="modal-title float-none" style="text-align: center;margin: 0;padding-right: 0px;padding-left: 0px;margin-left: 0px;margin-right: 10px;">
+       Add Assumption
+      </h4>
+      <button aria-label="Close" class="btn-close text-end" data-bs-dismiss="modal" id="add-assumption-close-button" style="margin: 8px;position: absolute;right: 0.4%;" type="button">
+      </button>
+     </div>
+     <div class="modal-body d-flex d-md-flex align-items-center align-items-md-center" style="padding: 16px;height: auto;width: auto;border-style: none;background: #fcff68;min-width: 300px;">
+      <a class="btn btn-primary" href="{% url 'add_assumption' rule_id %}?next=/new_diagram" style="margin: 8px;">
+       Draw Diagram
+      </a>
+      <a class="btn btn-primary" href="{% url 'add_assumption' rule_id %}?next=/my_rule_list/created/asc/0" style="margin: 8px;">
+       My Rules
+      </a>
+      <a class="btn btn-primary" href="{% url 'add_assumption' rule_id %}?next=/" style="margin: 8px;">
+       More...
+      </a>
+     </div>
+     <div class="modal-footer" style="height: 29px;padding: 0;padding-right: 8px;border-style: none;background: #fcff68;">
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="modal fade d-flex d-sm-flex d-lg-flex d-xxl-flex flex-grow-1 justify-content-center align-items-center justify-content-sm-center align-items-sm-center justify-content-lg-center align-items-lg-center justify-content-xxl-center align-items-xxl-center" id="insert-conclusion-modal" role="dialog" style="margin: 0px;border-color: var(--bs-indigo);width: 100%;height: 100%;position: absolute;padding-top: 0px;margin-top: 0px;" tabindex="-1">
+   <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+     <div class="modal-header flex-row flex-grow-1 flex-shrink-0 flex-fill justify-content-center align-items-center align-content-center align-self-stretch flex-wrap justify-content-xl-center align-items-xl-center" style="height: 46.4219px;border-style: none;background: #fcff68;text-align: center;padding-left: 0%;padding-right: 0%;margin: 0px;">
+      <h4 class="modal-title float-none" style="text-align: center;margin: 0;padding-right: 0px;padding-left: 0px;margin-left: 0px;margin-right: 10px;">
+       Add Conclusion
+      </h4>
+      <button aria-label="Close" class="btn-close text-end" data-bs-dismiss="modal" id="add-conclusion-close-button" style="margin: 8px;position: absolute;right: 0.4%;" type="button">
+      </button>
+     </div>
+     <div class="modal-body d-flex d-md-flex align-items-center align-items-md-center" style="padding: 16px;height: auto;width: auto;border-style: none;background: #fcff68;min-width: 300px;">
+      <a class="btn btn-primary" href="{% url 'add_conclusion' rule_id %}?next=/new_diagram" style="margin: 8px;">
+       Draw Diagram
+      </a>
+      <a class="btn btn-primary" href="{% url 'add_conclusion' rule_id %}?next=/my_rule_list/created/asc/0" style="margin: 8px;">
+       My Rules
+      </a>
+      <a class="btn btn-primary" href="{% url 'add_conclusion' rule_id %}?next=/" style="margin: 8px;">
+       More...
+      </a>
+     </div>
+     <div class="modal-footer" style="height: 29px;padding: 0;padding-right: 8px;border-style: none;background: #fcff68;">
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="container" style="padding: 8px;max-width: 100%;">
+   <div class="row gx-1 gy-0" style="margin: 0px;padding-left: 0px;width: 100%;">
+    <div class="col-md-6" style="padding: 8px;">
+     <h2 style="font-weight: bold;">
+      Assumptions:
+     </h2>
+     <div class="simple-slider">
+      <div class="swiper-container">
+       <div class="swiper-wrapper">
+        {% for assumption in assumptions %}
+        <div class="swiper-slide" style='background: url(https://cdn.bootstrapstudio.io/placeholders/1400x800.png) center center / cover no-repeat;border-radius: 12px;'>
+         {% if user.username == assumption.author %}
+         <a class="btn btn-primary edit-diagram-button" href="{% url 'diagram_editor' assumption.uid %}" style="position: absolute;top: 0%;width: 100%;bottom: 0%;height: auto;z-index: 1;border-radius: 12px;border-width: 2px;">
+         </a>
+         {% endif %}
+         <h3 style="position: absolute;width: 40%;height: auto;word-wrap: break-word;margin: 8px;">
+          {{ assumption.name }}
+         </h3>
+         <iframe class="quiver-embed" height="100%" scrolling="no" src="{% static 'quiver/src/index.html' %}?q={{ assumption.embed_data }}&embed" style="border: none; overflow: scroll; display:block; z-index:-1; border-radius:12px" width="100%">
+         </iframe>
+         <div class="d-inline-flex d-md-flex flex-row flex-wrap justify-content-md-center align-items-md-center" style="position: absolute;bottom: 0%;right: 0%;z-index: 11;">
+          <a class="btn btn-primary" href="{% url 'delete_assumption' assumption.uid rule_id %}" style="margin: 8px;">
+           Delete
+          </a>
+         </div>
+         <h4 style="position: absolute;width: 40%;height: auto;word-wrap: break-word;margin: 8px;bottom: 0%;">
+          By: {{ assumption.author }}
+         </h4>
+        </div>
+        {% endfor %}
+       </div>
+       <div class="swiper-pagination">
+       </div>
+       <div class="swiper-button-prev" style='background: url({% static "img/swipe-left-arrow.png" %}) no-repeat;background-size: contain;'>
+       </div>
+       <div class="swiper-button-next" style='background: url({% static "img/swipe-right-arrow.png" %}) no-repeat;background-size: contain;'>
+       </div>
+      </div>
+     </div>
+     <button class="btn btn-primary" data-bs-target="#insert-assumption-modal" data-bs-toggle="modal" style="margin: 8px;" type="button">
+      Add Assumption
+     </button>
+    </div>
+    <div class="col-md-6" style="padding: 8px;">
+     <h2 style="font-weight: bold;">
+      Conclusions:
+     </h2>
+     <div class="simple-slider">
+      <div class="swiper-container">
+       <div class="swiper-wrapper">
+        {% for conclusion in conclusions %}
+        <div class="swiper-slide" style='background: url(https://cdn.bootstrapstudio.io/placeholders/1400x800.png) center center / cover no-repeat;border-radius: 12px;'>
+         {% if user.username == conclusion.author %}
+         <div>
+          {% if conclusion.is_diagram %}
+          <a class="btn btn-primary edit-diagram-button" href="{% url 'diagram_editor' conclusion.uid %}" style="position: absolute;top: 0%;width: 100%;bottom: 0%;height: auto;z-index: 1;border-radius: 12px;border-width: 2px;">
+          </a>
+          {% endif %}
+          {% if conclusion.is_diagram == False %}
+          <a class="btn btn-primary edit-diagram-button" href="{% url 'rule_editor' conclusion.uid %}" style="position: absolute;top: 0%;width: 100%;bottom: 0%;height: auto;z-index: 1;border-radius: 12px;border-width: 2px;">
+          </a>
+          {% endif %}
+         </div>
+         {% endif %}
+         <h3 style="position: absolute;width: 40%;height: auto;word-wrap: break-word;margin: 8px;">
+          {{ conclusion.name }}
+         </h3>
+         <iframe class="quiver-embed" height="100%" scrolling="no" src="{% static 'quiver/src/index.html' %}?q={{ conclusion.embed_data }}&embed" style="border: none; overflow: scroll; display:block; z-index:-1; border-radius: 12px" width="100%">
+         </iframe>
+         <div class="d-inline-flex d-md-flex flex-row flex-wrap justify-content-md-center align-items-md-center" style="position: absolute;bottom: 0%;right: 0%;z-index: 11;">
+          <a class="btn btn-primary" href="{% url 'delete_conclusion' conclusion.uid rule_id %}" style="margin: 8px;">
+           Delete
+          </a>
+         </div>
+         <h4 style="position: absolute;width: 40%;height: auto;word-wrap: break-word;margin: 8px;bottom: 0%;">
+          By: {{ conclusion.author }}
+         </h4>
+        </div>
+        {% endfor %}
+       </div>
+       <div class="swiper-pagination">
+       </div>
+       <div class="swiper-button-prev" style='background: url({% static "img/swipe-left-arrow.png" %}) no-repeat;background-size: contain;'>
+       </div>
+       <div class="swiper-button-next" style='background: url({% static "img/swipe-right-arrow.png" %}) no-repeat;background-size: contain;'>
+       </div>
+      </div>
+     </div>
+     <button class="btn btn-primary" data-bs-target="#insert-conclusion-modal" data-bs-toggle="modal" style="margin: 8px;" type="button">
+      Add Conclusion
+     </button>
+    </div>
+   </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+  </script>
+  <script src='{% static "js/bs-init.js" %}'>
+  </script>
+  <script src='{% static "js/django_messages.js" %}'>
+  </script>
+  <script src='{% static "js/Simple-Slider-swiper-bundle.min.js" %}'>
+  </script>
+  <script src='{% static "js/Simple-Slider.js" %}'>
+  </script>
+ </body>
+</html>
