@@ -30,7 +30,8 @@ in a category.
      * Open a command line in the project's directory.
      * On the command line type `pip install -r requirements.txt`.
      * Let it finish installing all the Python library prequisites in the background.
-4.
+
+3. 
 
 _Notes: 
 In step 1 you set up a local database on your machine, but represents the actual Neo4j database that will be either on AuraDB (Neo4j company itself) or GrapheneDB.  Another option is self-hosting, but it's lacking managaged mode & auto-scalability etc._
