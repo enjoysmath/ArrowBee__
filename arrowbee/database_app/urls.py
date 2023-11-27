@@ -24,6 +24,8 @@ urlpatterns = [
          name='set_assumption_avatar'),      
     path('my_rule_list/<str:order_by>/<str:order_dir>/<int:page_num>', my_rule_list, name='my_rule_list'),
     path('delete_diagram/<str:diagram_id>', delete_diagram, name='delete_diagram'),    
-    path('diagram_search/<str:diagram_id>/<str:order_by>/<str:order_dir>/<int:page_num>', diagram_search, name='diagram_search'),    
-]
+    path('diagram_search/<str:diagram_id>/<str:order_by>/<str:order_dir>/<int:page_num>', diagram_search, name='diagram_search'),
 
+    path('github/login/', github_login, name='github_login'),
+    path('github/callback/', github_callback, name='github_callback'),
+]

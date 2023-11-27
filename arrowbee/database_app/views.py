@@ -1,3 +1,5 @@
+from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, HttpResponse, \
      HttpResponseRedirect
 from .models import Object, Morphism, Category, Diagram, \
@@ -17,6 +19,8 @@ import re
 from datetime import datetime
 from neomodel import db
 from arrowbee.variable import Variable
+from django.conf import settings
+import requests
 
 # Create your views here.
 
@@ -785,3 +789,57 @@ def diagram_search(request, diagram_id:str,
         raise e
 
     #return redirect('home')               
+
+
+def github_login(request):
+    # Redirect users to GitHub for authentication
+    github_url = f'https://github.com/login/oauth/authorize?client_id={settings.GITHUB_CLIENT_ID}'
+    return redirect(github_url)
+
+
+def github_callback(request):
+    try:
+        # Handle GitHub callback
+        code = request.GET.get('code')
+        github_token_url = 'https://github.com/login/oauth/access_token'
+        params = {
+            'client_id': settings.GITHUB_CLIENT_ID,
+            'client_secret': settings.GITHUB_CLIENT_SECRET,
+            'code': code,
+        }
+
+        response = requests.post(github_token_url, params=params, headers={'Accept': 'application/json'})
+        response.raise_for_status()
+
+        data = response.json()
+        if 'access_token' not in data:
+            raise ValueError('Access token not found in GitHub response')
+        access_token = data.get('access_token')
+
+        # Use the access token to get user data from GitHub API
+        github_user_url = 'https://api.github.com/user'
+        headers = {'Authorization': f'Bearer {access_token}'}
+        github_user_response = requests.get(github_user_url, headers=headers)
+        github_user_data = github_user_response.json()
+        #The github is sending multiple parameters to us. So just print out the  github_user_data variable
+        print(github_user_data)
+        github_username = github_user_data.get('login')
+
+        #Creating or get the user object from our database.
+        user, created = User.objects.get_or_create(username=github_username)
+        user.save()
+        login(request, user)
+
+        return redirect('home')
+
+    except requests.RequestException as e:
+        messages.error(request, f"GitHub authentication error: {str(e)}")
+        return redirect('login')
+
+    except ValueError as e:
+        messages.error(request, f"GitHub authentication error: {str(e)}")
+        return redirect('login')
+
+    except Exception as e:
+        messages.error(request, f"An unexpected error occurred: {str(e)}")
+        return redirect('login')

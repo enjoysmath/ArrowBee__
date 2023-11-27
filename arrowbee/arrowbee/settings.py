@@ -139,7 +139,8 @@ MAX_TEXT_LENGTH = 128
 MAX_USER_EDIT_DIAGRAMS = 8
 MAX_DIAGRAMS_PER_PAGE = 3
 
-
+GITHUB_CLIENT_ID = '419d5882bee6e60095d0'
+GITHUB_CLIENT_SECRET = 'bf0e2bb7d93d47628c9ca616656c5896beb8bbb0'
 
 # Allow Wing Pro to stop on exceptions and debug templates, when it is present
 
